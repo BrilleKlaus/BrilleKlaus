@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Netlify Forms detection</title>
+  </head>
+  <body>
+    <!--
+      This file exists only so Netlify can detect the contact form at build time.
+      The real form lives inside the React app and POSTs to "/" with the same
+      form-name and field names. Keep field names in sync.
+    -->
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="text" name="bot-field" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <textarea name="message"></textarea>
+    </form>
+  </body>
+</html>
