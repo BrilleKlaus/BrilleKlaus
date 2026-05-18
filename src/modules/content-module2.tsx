@@ -1,8 +1,8 @@
-import Image from "next/image";
+import RotatingImage from "@/components/rotating-image";
 import { getProcessContent } from "@/lib/contentful";
 
 export default async function ContentModule2() {
-  const { heading, body, image1, image2, image3 } = await getProcessContent();
+  const { heading, body, images1, images2, images3 } = await getProcessContent();
 
   return (
     <section
@@ -22,28 +22,22 @@ export default async function ContentModule2() {
 
       <div className="md:col-span-7 md:col-start-6 order-1 md:order-2 flex flex-col gap-4">
         <div className="relative aspect-square w-5/7 ml-auto">
-          <Image
-            src={image1.src}
-            alt={image1.alt}
-            fill
+          <RotatingImage
+            images={images1}
             sizes="(min-width: 768px) 58vw, 100vw"
             className="object-cover"
           />
         </div>
         <div className="relative aspect-2/1 w-3/7 ml-auto">
-          <Image
-            src={image2.src}
-            alt={image2.alt}
-            fill
+          <RotatingImage
+            images={images2}
             sizes="(min-width: 768px) 19vw, 33vw"
             className="object-cover"
           />
         </div>
         <div className="relative aspect-3/4 w-3/7 ml-auto">
-          <Image
-            src={image3.src}
-            alt={image3.alt}
-            fill
+          <RotatingImage
+            images={images3}
             sizes="(min-width: 768px) 19vw, 33vw"
             className="object-cover"
           />

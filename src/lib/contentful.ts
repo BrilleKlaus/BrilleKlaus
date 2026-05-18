@@ -41,31 +41,42 @@ export type ImageContent = {
 /**
  * Contentful returns protocol-relative asset URLs (`//images.ctfassets.net/...`).
  * We prefix `https:` so `next/image` accepts them.
+ *
+ * Falls back to the provided default array when no assets resolve — so each
+ * image slot always renders something.
  */
-function resolveAsset(
-  asset: Asset<undefined, string> | undefined,
-  fallback: ImageContent,
-): ImageContent {
-  const file = asset?.fields.file;
-  if (!file?.url) return fallback;
-  const url = file.url.startsWith("//") ? `https:${file.url}` : file.url;
-  const alt =
-    (typeof asset?.fields.title === "string" && asset.fields.title) ||
-    (typeof asset?.fields.description === "string" &&
-      asset.fields.description) ||
-    fallback.alt;
-  return { src: url, alt };
+function resolveAssets(
+  assets: ReadonlyArray<Asset<undefined, string> | undefined> | undefined,
+  fallback: ImageContent[],
+): ImageContent[] {
+  if (!assets || assets.length === 0) return fallback;
+  const resolved: ImageContent[] = [];
+  for (const asset of assets) {
+    const file = asset?.fields.file;
+    if (!file?.url) continue;
+    const url = file.url.startsWith("//") ? `https:${file.url}` : file.url;
+    const alt =
+      (typeof asset?.fields.title === "string" && asset.fields.title) ||
+      (typeof asset?.fields.description === "string" &&
+        asset.fields.description) ||
+      fallback[0]?.alt ||
+      "";
+    resolved.push({ src: url, alt });
+  }
+  return resolved.length > 0 ? resolved : fallback;
 }
 
 /* -------------------------------------------------------------------------- */
 /*  Entry skeletons (mirror the content models in Contentful)                 */
 /* -------------------------------------------------------------------------- */
 
+type AssetArray = EntryFieldTypes.Array<EntryFieldTypes.AssetLink>;
+
 type HeroSkeleton = {
   contentTypeId: "heroSection";
   fields: {
     tagline: EntryFieldTypes.Symbol;
-    backgroundImage: EntryFieldTypes.AssetLink;
+    backgroundImages: AssetArray;
   };
 };
 
@@ -76,7 +87,7 @@ type ManifestoSkeleton = {
     leftLine2: EntryFieldTypes.Symbol;
     rightLine1: EntryFieldTypes.Symbol;
     rightLine2: EntryFieldTypes.Symbol;
-    image: EntryFieldTypes.AssetLink;
+    images: AssetArray;
   };
 };
 
@@ -85,8 +96,8 @@ type AboutSkeleton = {
   fields: {
     heading: EntryFieldTypes.Symbol;
     body: EntryFieldTypes.Text;
-    primaryImage: EntryFieldTypes.AssetLink;
-    secondaryImage: EntryFieldTypes.AssetLink;
+    primaryImages: AssetArray;
+    secondaryImages: AssetArray;
   };
 };
 
@@ -95,9 +106,9 @@ type ProcessSkeleton = {
   fields: {
     heading: EntryFieldTypes.Symbol;
     body: EntryFieldTypes.Text;
-    image1: EntryFieldTypes.AssetLink;
-    image2: EntryFieldTypes.AssetLink;
-    image3: EntryFieldTypes.AssetLink;
+    images1: AssetArray;
+    images2: AssetArray;
+    images3: AssetArray;
   };
 };
 
@@ -114,7 +125,7 @@ type FooterSkeleton = {
 
 export type HeroContent = {
   tagline: string;
-  backgroundImage: ImageContent;
+  backgroundImages: ImageContent[];
 };
 
 export type ManifestoContent = {
@@ -122,22 +133,22 @@ export type ManifestoContent = {
   leftLine2: string;
   rightLine1: string;
   rightLine2: string;
-  image: ImageContent;
+  images: ImageContent[];
 };
 
 export type AboutContent = {
   heading: string;
   body: string;
-  primaryImage: ImageContent;
-  secondaryImage: ImageContent;
+  primaryImages: ImageContent[];
+  secondaryImages: ImageContent[];
 };
 
 export type ProcessContent = {
   heading: string;
   body: string;
-  image1: ImageContent;
-  image2: ImageContent;
-  image3: ImageContent;
+  images1: ImageContent[];
+  images2: ImageContent[];
+  images3: ImageContent[];
 };
 
 export type FooterContent = {
@@ -156,7 +167,7 @@ const PLACEHOLDER_IMAGE: ImageContent = {
 const FALLBACK = {
   hero: {
     tagline: "optiker",
-    backgroundImage: { ...PLACEHOLDER_IMAGE, alt: "" },
+    backgroundImages: [{ ...PLACEHOLDER_IMAGE, alt: "" }],
   } satisfies HeroContent,
 
   manifesto: {
@@ -164,22 +175,22 @@ const FALLBACK = {
     leftLine2: "Experience",
     rightLine1: "Into a new world of glasses",
     rightLine2: "Klaus Berthelsen",
-    image: PLACEHOLDER_IMAGE,
+    images: [PLACEHOLDER_IMAGE],
   } satisfies ManifestoContent,
 
   about: {
     heading: "About Brilleklaus",
     body: "Host by Klaus Berthelsen — with us, it's all about your vision and your style. That's why we're thorough when we grind glass and discerning when we choose frames for you with edge and personality.",
-    primaryImage: PLACEHOLDER_IMAGE,
-    secondaryImage: PLACEHOLDER_IMAGE,
+    primaryImages: [PLACEHOLDER_IMAGE],
+    secondaryImages: [PLACEHOLDER_IMAGE],
   } satisfies AboutContent,
 
   process: {
     heading: "About Brilleklaus",
     body: "With us, it's all about your vision and your style. That's why we're thorough when we grind glass and discerning when we choose frames for you with edge and personality.",
-    image1: PLACEHOLDER_IMAGE,
-    image2: PLACEHOLDER_IMAGE,
-    image3: PLACEHOLDER_IMAGE,
+    images1: [PLACEHOLDER_IMAGE],
+    images2: [PLACEHOLDER_IMAGE],
+    images3: [PLACEHOLDER_IMAGE],
   } satisfies ProcessContent,
 
   footer: {
@@ -200,7 +211,13 @@ const FALLBACK = {
 async function fetchFirstEntry<
   T extends {
     contentTypeId: string;
-    fields: Record<string, EntryFieldTypes.Symbol | EntryFieldTypes.Text | EntryFieldTypes.AssetLink>;
+    fields: Record<
+      string,
+      | EntryFieldTypes.Symbol
+      | EntryFieldTypes.Text
+      | EntryFieldTypes.AssetLink
+      | AssetArray
+    >;
   },
 >(contentTypeId: T["contentTypeId"]) {
   const client = getClient();
@@ -231,9 +248,9 @@ export const getHeroContent = cache(async (): Promise<HeroContent> => {
   if (!entry) return FALLBACK.hero;
   return {
     tagline: entry.fields.tagline ?? FALLBACK.hero.tagline,
-    backgroundImage: resolveAsset(
-      entry.fields.backgroundImage,
-      FALLBACK.hero.backgroundImage,
+    backgroundImages: resolveAssets(
+      entry.fields.backgroundImages,
+      FALLBACK.hero.backgroundImages,
     ),
   };
 });
@@ -247,7 +264,7 @@ export const getManifestoContent = cache(
       leftLine2: entry.fields.leftLine2 ?? FALLBACK.manifesto.leftLine2,
       rightLine1: entry.fields.rightLine1 ?? FALLBACK.manifesto.rightLine1,
       rightLine2: entry.fields.rightLine2 ?? FALLBACK.manifesto.rightLine2,
-      image: resolveAsset(entry.fields.image, FALLBACK.manifesto.image),
+      images: resolveAssets(entry.fields.images, FALLBACK.manifesto.images),
     };
   },
 );
@@ -258,13 +275,13 @@ export const getAboutContent = cache(async (): Promise<AboutContent> => {
   return {
     heading: entry.fields.heading ?? FALLBACK.about.heading,
     body: entry.fields.body ?? FALLBACK.about.body,
-    primaryImage: resolveAsset(
-      entry.fields.primaryImage,
-      FALLBACK.about.primaryImage,
+    primaryImages: resolveAssets(
+      entry.fields.primaryImages,
+      FALLBACK.about.primaryImages,
     ),
-    secondaryImage: resolveAsset(
-      entry.fields.secondaryImage,
-      FALLBACK.about.secondaryImage,
+    secondaryImages: resolveAssets(
+      entry.fields.secondaryImages,
+      FALLBACK.about.secondaryImages,
     ),
   };
 });
@@ -275,9 +292,9 @@ export const getProcessContent = cache(async (): Promise<ProcessContent> => {
   return {
     heading: entry.fields.heading ?? FALLBACK.process.heading,
     body: entry.fields.body ?? FALLBACK.process.body,
-    image1: resolveAsset(entry.fields.image1, FALLBACK.process.image1),
-    image2: resolveAsset(entry.fields.image2, FALLBACK.process.image2),
-    image3: resolveAsset(entry.fields.image3, FALLBACK.process.image3),
+    images1: resolveAssets(entry.fields.images1, FALLBACK.process.images1),
+    images2: resolveAssets(entry.fields.images2, FALLBACK.process.images2),
+    images3: resolveAssets(entry.fields.images3, FALLBACK.process.images3),
   };
 });
 

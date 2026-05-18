@@ -1,16 +1,14 @@
-import Image from "next/image";
 import LogoWhite from "@/components/logos/logo-white";
+import RotatingImage from "@/components/rotating-image";
 import { getHeroContent } from "@/lib/contentful";
 
 export default async function Hero() {
-  const { tagline, backgroundImage } = await getHeroContent();
+  const { tagline, backgroundImages } = await getHeroContent();
 
   return (
     <section id="hero" className="relative h-screen w-full overflow-hidden bg-black text-white">
-      <Image
-        src={backgroundImage.src}
-        alt={backgroundImage.alt}
-        fill
+      <RotatingImage
+        images={backgroundImages}
         priority
         sizes="100vw"
         className="object-cover"

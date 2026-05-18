@@ -70,27 +70,34 @@ before the CMS is wired up.
 Create one entry per content type. The fetchers grab the first published
 entry of each type (`limit: 1`).
 
-| Content type ID    | Field ID          | Type   | Notes                                   |
-| ------------------ | ----------------- | ------ | --------------------------------------- |
-| `heroSection`      | `tagline`         | Symbol | e.g. "optiker"                          |
-|                    | `backgroundImage` | Media  | Full-screen hero background             |
-| `manifestoSection` | `leftLine1`       | Symbol | e.g. "Not just glasses"                 |
-|                    | `leftLine2`       | Symbol | e.g. "Experience"                       |
-|                    | `rightLine1`      | Symbol | e.g. "Into a new world of glasses"      |
-|                    | `rightLine2`      | Symbol | e.g. "Klaus Berthelsen"                 |
-|                    | `image`           | Media  | Portrait                                |
-| `aboutSection`     | `heading`         | Symbol |                                         |
-|                    | `body`            | Text   | Long-form paragraph (newlines respected)|
-|                    | `primaryImage`    | Media  | Landscape, fills right column           |
-|                    | `secondaryImage`  | Media  | Portrait, sits at 1/3 width             |
-| `processSection`   | `heading`         | Symbol |                                         |
-|                    | `body`            | Text   |                                         |
-|                    | `image1`          | Media  | Square, ~5/7 width                      |
-|                    | `image2`          | Media  | 2:1, ~3/7 width                         |
-|                    | `image3`          | Media  | 3:4, ~3/7 width                         |
-| `footerSection`    | `heading`         | Symbol | e.g. "Get in touch"                     |
+Every image slot is a **list of media** (`Many files`). On the front end each
+slot crossfades through its array every 7 seconds via the `<RotatingImage>`
+client component (`src/components/rotating-image.tsx`). One asset = static
+image; multiple = rotation.
 
-Asset `title` is used as the `alt` text; fall back is the module's default.
+| Content type ID    | Field ID           | Type            | Notes                                    |
+| ------------------ | ------------------ | --------------- | ---------------------------------------- |
+| `heroSection`      | `tagline`          | Symbol          | e.g. "optiker"                           |
+|                    | `backgroundImages` | Media, many     | Full-screen hero background(s)           |
+| `manifestoSection` | `leftLine1`        | Symbol          | e.g. "Not just glasses"                  |
+|                    | `leftLine2`        | Symbol          | e.g. "Experience"                        |
+|                    | `rightLine1`       | Symbol          | e.g. "Into a new world of glasses"       |
+|                    | `rightLine2`       | Symbol          | e.g. "Klaus Berthelsen"                  |
+|                    | `images`           | Media, many     | Portrait                                 |
+| `aboutSection`     | `heading`          | Symbol          |                                          |
+|                    | `body`             | Text            | Long-form paragraph (newlines respected) |
+|                    | `primaryImages`    | Media, many     | Landscape, fills right column            |
+|                    | `secondaryImages`  | Media, many     | Portrait, sits at 1/3 width              |
+| `processSection`   | `heading`          | Symbol          |                                          |
+|                    | `body`             | Text            |                                          |
+|                    | `images1`          | Media, many     | Square, ~5/7 width                       |
+|                    | `images2`          | Media, many     | 2:1, ~3/7 width                          |
+|                    | `images3`          | Media, many     | 3:4, ~3/7 width                          |
+| `footerSection`    | `heading`          | Symbol          | e.g. "Get in touch"                      |
+
+In Contentful, configure each Media field as **"Many files"** and the
+"Accept only specified file types" → Image. Asset `title` is used as the
+`alt` text (asset `description` is the secondary fallback).
 
 ### Adding a new section
 

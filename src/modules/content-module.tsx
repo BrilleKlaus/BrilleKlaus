@@ -1,8 +1,8 @@
-import Image from "next/image";
+import RotatingImage from "@/components/rotating-image";
 import { getAboutContent } from "@/lib/contentful";
 
 export default async function ContentModule() {
-  const { heading, body, primaryImage, secondaryImage } =
+  const { heading, body, primaryImages, secondaryImages } =
     await getAboutContent();
 
   return (
@@ -23,20 +23,16 @@ export default async function ContentModule() {
 
       <div className="md:col-span-7 md:col-start-6 order-1 md:order-2 flex flex-col gap-4">
         <div className="relative aspect-16/10 w-full">
-          <Image
-            src={primaryImage.src}
-            alt={primaryImage.alt}
-            fill
+          <RotatingImage
+            images={primaryImages}
             sizes="(min-width: 768px) 58vw, 100vw"
             className="object-cover"
           />
         </div>
 
         <div className="relative aspect-3/4 w-1/3 ml-auto">
-          <Image
-            src={secondaryImage.src}
-            alt={secondaryImage.alt}
-            fill
+          <RotatingImage
+            images={secondaryImages}
             sizes="(min-width: 768px) 19vw, 33vw"
             className="object-cover"
           />
