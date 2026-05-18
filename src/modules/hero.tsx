@@ -1,12 +1,15 @@
 import Image from "next/image";
 import LogoWhite from "@/components/logos/logo-white";
+import { getHeroContent } from "@/lib/contentful";
 
-export default function Hero() {
+export default async function Hero() {
+  const { tagline, backgroundImage } = await getHeroContent();
+
   return (
     <section id="hero" className="relative h-screen w-full overflow-hidden bg-black text-white">
       <Image
-        src="/assets/images/Klaus Berthelsen Frame 44.png"
-        alt=""
+        src={backgroundImage.src}
+        alt={backgroundImage.alt}
         fill
         priority
         sizes="100vw"
@@ -18,7 +21,7 @@ export default function Hero() {
           <LogoWhite />
         </div>
         <span className="mt-2 uppercase leading-none tracking-[0.02em] text-[clamp(2rem,11vw,4.5rem)]">
-          optiker
+          {tagline}
         </span>
       </div>
     </section>
