@@ -9,7 +9,7 @@ export default async function Manifesto() {
   return (
     <section
       id="manifesto"
-      className="grid md:grid-cols-8 grid-cols-1 order-2 md:order-1 pt-10 md:pt-0 px-2 pb-48 gap-y-20 md:gap-0"
+      className="grid md:grid-cols-8 grid-cols-1 order-2 md:order-1 pt-10 md:pt-0 px-4 pb-48 gap-y-20 md:gap-0"
     >
       <div className="relative col-span-2 ml-auto aspect-3/4 w-2/3 md:ml-0 md:w-auto md:col-start-7 md:row-start-1">
         <RotatingImage

@@ -8,7 +8,7 @@ export default async function ContentModule() {
   return (
     <section
       id="about"
-      className="grid grid-cols-1 md:grid-cols-12 gap-y-12 md:gap-x-8 px-2 py-24 md:py-32"
+      className="grid grid-cols-1 md:grid-cols-12 gap-y-12 md:gap-x-8 px-4 py-24 md:py-32"
     >
       <div className="md:col-span-5 md:col-start-1 order-2 md:order-1">
         <div className="md:sticky md:top-24 md:pb-24 flex flex-col gap-6">
