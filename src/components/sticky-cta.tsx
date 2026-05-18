@@ -1,37 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function StickyCta() {
+  const ctaRef = useRef<HTMLAnchorElement>(null);
   const [hidden, setHidden] = useState(false);
   const [overHero, setOverHero] = useState(true);
 
   useEffect(() => {
-    const footer = document.getElementById("footer");
-    if (!footer) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setHidden(entry.isIntersecting),
-      { threshold: 0 },
-    );
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
     const hero = document.getElementById("hero");
-    if (!hero) return;
+    const footer = document.getElementById("footer");
+    const cta = ctaRef.current;
+    if (!hero || !footer || !cta) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => setOverHero(entry.isIntersecting),
-      { threshold: 0 },
-    );
-    observer.observe(hero);
-    return () => observer.disconnect();
+    let rafId = 0;
+
+    function update() {
+      rafId = 0;
+      const ctaRect = cta!.getBoundingClientRect();
+      const heroRect = hero!.getBoundingClientRect();
+      const footerRect = footer!.getBoundingClientRect();
+
+      // White while the CTA still overlaps the hero — flips the second the
+      // hero's bottom edge passes above the CTA's top.
+      setOverHero(heroRect.bottom > ctaRect.top);
+
+      // Hide only when the footer would visually collide with the CTA.
+      setHidden(footerRect.top < ctaRect.bottom);
+    }
+
+    function schedule() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
     <a
+      ref={ctaRef}
       href="#footer"
       aria-label="Get in touch — scroll to footer"
       aria-hidden={hidden}
