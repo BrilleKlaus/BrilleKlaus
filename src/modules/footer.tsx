@@ -1,7 +1,21 @@
 import { getFooterContent } from "@/lib/contentful";
 
 export default async function Footer() {
-  const { heading } = await getFooterContent();
+  const {
+    heading,
+    firstNamePlaceholder,
+    lastNamePlaceholder,
+    messagePlaceholder,
+    submitLabel,
+    brandName,
+    brandTagline,
+    hostLine,
+    email,
+    phone,
+    socialLinks,
+  } = await getFooterContent();
+
+  const telHref = `tel:${phone.replace(/\s+/g, "")}`;
 
   return (
     <footer
@@ -10,16 +24,27 @@ export default async function Footer() {
     >
       <form
         className="flex flex-col gap-6 text-[10px] md:text-[15px] uppercase tracking-[0.15em] max-w-xl"
-        action="#"
+        name="contact"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
       >
+        <input type="hidden" name="form-name" value="contact" />
+        <p hidden>
+          <label>
+            Don&apos;t fill this out if you&apos;re human:{" "}
+            <input name="bot-field" />
+          </label>
+        </p>
+
         <p>{heading}</p>
 
         <div className="flex flex-col gap-5 pt-8">
-          <FormField name="firstName" placeholder="First name" />
-          <FormField name="lastName" placeholder="Last name" />
+          <FormField name="firstName" placeholder={firstNamePlaceholder} />
+          <FormField name="lastName" placeholder={lastNamePlaceholder} />
           <FormField
             name="message"
-            placeholder="Leave your message"
+            placeholder={messagePlaceholder}
             as="textarea"
             rows={4}
           />
@@ -30,32 +55,37 @@ export default async function Footer() {
             type="submit"
             className="uppercase tracking-[0.15em] pb-2 cursor-pointer"
           >
-            Send your message
+            {submitLabel}
           </button>
         </div>
       </form>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-10 text-[10px] md:text-[15px] tracking-[0.15em]">
+      <div className="flex flex-col space-y-6 md:grid md:grid-cols-4 gap-x-8 md:gap-y-10 text-[10px] md:text-[15px] tracking-[0.15em]">
         <p className="uppercase">
-          <span className="normal-case">BrilleKlaus</span> – Optiker since XXXX
+          <span className="normal-case">{brandName}</span> – {brandTagline}
         </p>
-        <p>Host by Klaus Berthelsen</p>
+        <p>{hostLine}</p>
         <div className="flex flex-col gap-1">
-          <a href="mailto:butik@nr-26.dk" className="hover:underline">
-            butik@nr-26.dk
+          <a href={`mailto:${email}`} className="hover:underline">
+            {email}
           </a>
-          <a href="tel:+4533150184" className="hover:underline">
-            +45 3315 0184
+          <a href={telHref} className="hover:underline">
+            {phone}
           </a>
         </div>
-        <a
-          href="https://www.instagram.com/"
-          target="_blank"
-          rel="noreferrer"
-          className="hover:underline"
-        >
-          Instagram
-        </a>
+        <div className="flex flex-col gap-1">
+          {socialLinks.map(({ label, url }) => (
+            <a
+              key={`${label}-${url}`}
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:underline capitalize"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
       </div>
     </footer>
   );

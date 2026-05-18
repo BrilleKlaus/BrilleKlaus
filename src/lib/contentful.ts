@@ -5,6 +5,7 @@ import {
   type Asset,
   type ContentfulClientApi,
   type EntryFieldTypes,
+  type EntrySkeletonType,
 } from "contentful";
 
 /* -------------------------------------------------------------------------- */
@@ -45,6 +46,26 @@ export type ImageContent = {
  * Falls back to the provided default array when no assets resolve — so each
  * image slot always renders something.
  */
+function resolveSocialLinks(
+  entries:
+    | ReadonlyArray<
+        { fields?: { label?: string; url?: string } } | undefined
+      >
+    | undefined,
+  fallback: SocialLink[],
+): SocialLink[] {
+  if (!entries || entries.length === 0) return fallback;
+  const resolved: SocialLink[] = [];
+  for (const entry of entries) {
+    const label = entry?.fields?.label;
+    const url = entry?.fields?.url;
+    if (typeof label === "string" && typeof url === "string" && label && url) {
+      resolved.push({ label, url });
+    }
+  }
+  return resolved.length > 0 ? resolved : fallback;
+}
+
 function resolveAssets(
   assets: ReadonlyArray<Asset<undefined, string> | undefined> | undefined,
   fallback: ImageContent[],
@@ -112,10 +133,30 @@ type ProcessSkeleton = {
   };
 };
 
+type SocialLinkSkeleton = {
+  contentTypeId: "socialLink";
+  fields: {
+    label: EntryFieldTypes.Symbol;
+    url: EntryFieldTypes.Symbol;
+  };
+};
+
 type FooterSkeleton = {
   contentTypeId: "footerSection";
   fields: {
     heading: EntryFieldTypes.Symbol;
+    firstNamePlaceholder: EntryFieldTypes.Symbol;
+    lastNamePlaceholder: EntryFieldTypes.Symbol;
+    messagePlaceholder: EntryFieldTypes.Symbol;
+    submitLabel: EntryFieldTypes.Symbol;
+    brandName: EntryFieldTypes.Symbol;
+    brandTagline: EntryFieldTypes.Symbol;
+    hostLine: EntryFieldTypes.Symbol;
+    email: EntryFieldTypes.Symbol;
+    phone: EntryFieldTypes.Symbol;
+    socialLinks: EntryFieldTypes.Array<
+      EntryFieldTypes.EntryLink<SocialLinkSkeleton>
+    >;
   };
 };
 
@@ -151,8 +192,23 @@ export type ProcessContent = {
   images3: ImageContent[];
 };
 
+export type SocialLink = {
+  label: string;
+  url: string;
+};
+
 export type FooterContent = {
   heading: string;
+  firstNamePlaceholder: string;
+  lastNamePlaceholder: string;
+  messagePlaceholder: string;
+  submitLabel: string;
+  brandName: string;
+  brandTagline: string;
+  hostLine: string;
+  email: string;
+  phone: string;
+  socialLinks: SocialLink[];
 };
 
 /* -------------------------------------------------------------------------- */
@@ -195,6 +251,18 @@ const FALLBACK = {
 
   footer: {
     heading: "Get in touch",
+    firstNamePlaceholder: "First name",
+    lastNamePlaceholder: "Last name",
+    messagePlaceholder: "Leave your message",
+    submitLabel: "Send your message",
+    brandName: "BrilleKlaus",
+    brandTagline: "Optiker since XXXX",
+    hostLine: "Host by Klaus Berthelsen",
+    email: "butik@nr-26.dk",
+    phone: "+45 3315 0184",
+    socialLinks: [
+      { label: "Instagram", url: "https://www.instagram.com/" },
+    ],
   } satisfies FooterContent,
 };
 
@@ -217,6 +285,7 @@ async function fetchFirstEntry<
       | EntryFieldTypes.Text
       | EntryFieldTypes.AssetLink
       | AssetArray
+      | EntryFieldTypes.Array<EntryFieldTypes.EntryLink<EntrySkeletonType>>
     >;
   },
 >(contentTypeId: T["contentTypeId"]) {
@@ -301,7 +370,24 @@ export const getProcessContent = cache(async (): Promise<ProcessContent> => {
 export const getFooterContent = cache(async (): Promise<FooterContent> => {
   const entry = await fetchFirstEntry<FooterSkeleton>("footerSection");
   if (!entry) return FALLBACK.footer;
+  const f = entry.fields;
   return {
-    heading: entry.fields.heading ?? FALLBACK.footer.heading,
+    heading: f.heading ?? FALLBACK.footer.heading,
+    firstNamePlaceholder:
+      f.firstNamePlaceholder ?? FALLBACK.footer.firstNamePlaceholder,
+    lastNamePlaceholder:
+      f.lastNamePlaceholder ?? FALLBACK.footer.lastNamePlaceholder,
+    messagePlaceholder:
+      f.messagePlaceholder ?? FALLBACK.footer.messagePlaceholder,
+    submitLabel: f.submitLabel ?? FALLBACK.footer.submitLabel,
+    brandName: f.brandName ?? FALLBACK.footer.brandName,
+    brandTagline: f.brandTagline ?? FALLBACK.footer.brandTagline,
+    hostLine: f.hostLine ?? FALLBACK.footer.hostLine,
+    email: f.email ?? FALLBACK.footer.email,
+    phone: f.phone ?? FALLBACK.footer.phone,
+    socialLinks: resolveSocialLinks(
+      f.socialLinks,
+      FALLBACK.footer.socialLinks,
+    ),
   };
 });

@@ -7,13 +7,13 @@
   <body>
     <!--
       This file exists only so Netlify can detect the contact form at build time.
-      The real form lives inside the React app and POSTs to "/" with the same
-      form-name and field names. Keep field names in sync.
+      The real form lives inside the React app and POSTs with the same form-name
+      and field names. Keep field names in sync with src/modules/footer.tsx.
     -->
     <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
       <input type="text" name="bot-field" />
-      <input type="text" name="name" />
-      <input type="email" name="email" />
+      <input type="text" name="firstName" />
+      <input type="text" name="lastName" />
       <textarea name="message"></textarea>
     </form>
   </body>
