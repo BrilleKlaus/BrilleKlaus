@@ -20,10 +20,10 @@ export default async function Footer() {
   return (
     <footer
       id="footer"
-      className="px-2 pt-32 pb-12 flex flex-col gap-32 md:gap-48"
+      className="px-2 pt-15 md:pt-32 pb-12 flex flex-col gap-32 md:gap-48"
     >
       <form
-        className="flex flex-col gap-6 text-[10px] md:text-[15px] uppercase tracking-[0.15em] max-w-xl"
+        className="flex flex-col gap-6 uppercase max-w-xl"
         name="contact"
         method="POST"
         data-netlify="true"
@@ -53,14 +53,14 @@ export default async function Footer() {
         <div className="pt-8 border-b border-black w-full">
           <button
             type="submit"
-            className="uppercase tracking-[0.15em] pb-2 cursor-pointer"
+            className="uppercase pb-2 cursor-pointer"
           >
             {submitLabel}
           </button>
         </div>
       </form>
 
-      <div className="flex flex-col space-y-6 md:grid md:grid-cols-4 gap-x-8 md:gap-y-10 text-[10px] md:text-[15px] tracking-[0.15em]">
+      <div className="flex flex-col space-y-6 md:grid md:grid-cols-4 gap-x-8 md:gap-y-10">
         <p className="uppercase">
           <span className="normal-case">{brandName}</span> – {brandTagline}
         </p>
@@ -100,7 +100,7 @@ type FormFieldProps = {
 
 function FormField({ name, placeholder, as = "input", rows }: FormFieldProps) {
   const sharedClasses =
-    "flex-1 bg-transparent border-0 outline-none normal-case tracking-[0.15em] placeholder:uppercase placeholder:text-neutral-400";
+    "flex-1 bg-transparent border-0 outline-none normal-case placeholder:uppercase placeholder:text-neutral-400";
 
   return (
     <label

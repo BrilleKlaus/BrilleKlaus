@@ -8,3 +8,18 @@
 html {
   scroll-behavior: smooth;
 }
+
+@layer base {
+  body {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+
+  @media (min-width: 48rem) {
+    body {
+      font-size: 15px;
+      line-height: 19px;
+    }
+  }
+}

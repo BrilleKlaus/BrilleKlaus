@@ -8,16 +8,12 @@ export default async function ContentModule() {
   return (
     <section
       id="about"
-      className="grid grid-cols-1 md:grid-cols-12 gap-y-12 md:gap-x-8 px-4 py-24 md:py-32"
+      className="grid grid-cols-1 md:grid-cols-12 md:gap-y-12 md:gap-x-8 px-4 md:py-32"
     >
-      <div className="md:col-span-5 md:col-start-1 order-2 md:order-1">
+      <div className="md:col-span-5 md:col-start-1 order-2 md:order-1 py-20 md:py-0">
         <div className="md:sticky md:top-24 md:pb-24 flex flex-col gap-6">
-          <h2 className="text-[10px] md:text-[15px] uppercase tracking-[0.15em]">
-            {heading}
-          </h2>
-          <p className="text-[10px] md:text-[15px] tracking-[0.15em] leading-[1.6] max-w-md whitespace-pre-line">
-            {body}
-          </p>
+          <h2 className="uppercase">{heading}</h2>
+          <p className="max-w-md whitespace-pre-line">{body}</p>
         </div>
       </div>
 
