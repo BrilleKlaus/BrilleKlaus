@@ -6,6 +6,7 @@ export default async function Footer() {
     heading,
     firstNamePlaceholder,
     lastNamePlaceholder,
+    emailPlaceholder,
     messagePlaceholder,
     submitLabel,
     submittingLabel,
@@ -30,6 +31,7 @@ export default async function Footer() {
         heading={heading}
         firstNamePlaceholder={firstNamePlaceholder}
         lastNamePlaceholder={lastNamePlaceholder}
+        emailPlaceholder={emailPlaceholder}
         messagePlaceholder={messagePlaceholder}
         submitLabel={submitLabel}
         submittingLabel={submittingLabel}

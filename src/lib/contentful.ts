@@ -147,6 +147,7 @@ type FooterSkeleton = {
     heading: EntryFieldTypes.Symbol;
     firstNamePlaceholder: EntryFieldTypes.Symbol;
     lastNamePlaceholder: EntryFieldTypes.Symbol;
+    emailPlaceholder: EntryFieldTypes.Symbol;
     messagePlaceholder: EntryFieldTypes.Symbol;
     submitLabel: EntryFieldTypes.Symbol;
     submittingLabel: EntryFieldTypes.Symbol;
@@ -204,6 +205,7 @@ export type FooterContent = {
   heading: string;
   firstNamePlaceholder: string;
   lastNamePlaceholder: string;
+  emailPlaceholder: string;
   messagePlaceholder: string;
   submitLabel: string;
   submittingLabel: string;
@@ -259,6 +261,7 @@ const FALLBACK = {
     heading: "Get in touch",
     firstNamePlaceholder: "First name",
     lastNamePlaceholder: "Last name",
+    emailPlaceholder: "Email",
     messagePlaceholder: "Leave your message",
     submitLabel: "Send your message",
     submittingLabel: "Sending…",
@@ -387,6 +390,8 @@ export const getFooterContent = cache(async (): Promise<FooterContent> => {
       f.firstNamePlaceholder ?? FALLBACK.footer.firstNamePlaceholder,
     lastNamePlaceholder:
       f.lastNamePlaceholder ?? FALLBACK.footer.lastNamePlaceholder,
+    emailPlaceholder:
+      f.emailPlaceholder ?? FALLBACK.footer.emailPlaceholder,
     messagePlaceholder:
       f.messagePlaceholder ?? FALLBACK.footer.messagePlaceholder,
     submitLabel: f.submitLabel ?? FALLBACK.footer.submitLabel,

@@ -6,6 +6,7 @@ type ContactFormProps = {
   heading: string;
   firstNamePlaceholder: string;
   lastNamePlaceholder: string;
+  emailPlaceholder: string;
   messagePlaceholder: string;
   submitLabel: string;
   submittingLabel: string;
@@ -19,6 +20,7 @@ export function ContactForm({
   heading,
   firstNamePlaceholder,
   lastNamePlaceholder,
+  emailPlaceholder,
   messagePlaceholder,
   submitLabel,
   submittingLabel,
@@ -87,6 +89,12 @@ export function ContactForm({
         <FormField name="firstName" placeholder={firstNamePlaceholder} />
         <FormField name="lastName" placeholder={lastNamePlaceholder} />
         <FormField
+          name="email"
+          placeholder={emailPlaceholder}
+          type="email"
+          required
+        />
+        <FormField
           name="message"
           placeholder={messagePlaceholder}
           as="textarea"
@@ -115,10 +123,19 @@ type FormFieldProps = {
   name: string;
   placeholder: string;
   as?: "input" | "textarea";
+  type?: "text" | "email";
+  required?: boolean;
   rows?: number;
 };
 
-function FormField({ name, placeholder, as = "input", rows }: FormFieldProps) {
+function FormField({
+  name,
+  placeholder,
+  as = "input",
+  type = "text",
+  required,
+  rows,
+}: FormFieldProps) {
   const sharedClasses =
     "flex-1 bg-transparent border-0 outline-none normal-case placeholder:uppercase placeholder:text-neutral-400";
 
@@ -137,13 +154,15 @@ function FormField({ name, placeholder, as = "input", rows }: FormFieldProps) {
           name={name}
           placeholder={placeholder}
           rows={rows}
+          required={required}
           className={`${sharedClasses} resize-none`}
         />
       ) : (
         <input
-          type="text"
+          type={type}
           name={name}
           placeholder={placeholder}
+          required={required}
           className={sharedClasses}
         />
       )}
