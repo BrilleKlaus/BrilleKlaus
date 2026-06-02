@@ -272,7 +272,7 @@ const FALLBACK = {
     brandTagline: "Optiker since XXXX",
     hostLine: "Host by Klaus Berthelsen",
     email: "butik@nr-26.dk",
-    phone: "+45 3315 0184",
+    phone: "",
     socialLinks: [
       { label: "Instagram", url: "https://www.instagram.com/" },
     ],
