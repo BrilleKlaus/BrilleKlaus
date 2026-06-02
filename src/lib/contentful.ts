@@ -149,6 +149,9 @@ type FooterSkeleton = {
     lastNamePlaceholder: EntryFieldTypes.Symbol;
     messagePlaceholder: EntryFieldTypes.Symbol;
     submitLabel: EntryFieldTypes.Symbol;
+    submittingLabel: EntryFieldTypes.Symbol;
+    successMessage: EntryFieldTypes.Symbol;
+    errorMessage: EntryFieldTypes.Symbol;
     brandName: EntryFieldTypes.Symbol;
     brandTagline: EntryFieldTypes.Symbol;
     hostLine: EntryFieldTypes.Symbol;
@@ -203,6 +206,9 @@ export type FooterContent = {
   lastNamePlaceholder: string;
   messagePlaceholder: string;
   submitLabel: string;
+  submittingLabel: string;
+  successMessage: string;
+  errorMessage: string;
   brandName: string;
   brandTagline: string;
   hostLine: string;
@@ -255,6 +261,10 @@ const FALLBACK = {
     lastNamePlaceholder: "Last name",
     messagePlaceholder: "Leave your message",
     submitLabel: "Send your message",
+    submittingLabel: "Sending…",
+    successMessage:
+      "Tak for din besked – vi vender tilbage hurtigst muligt.",
+    errorMessage: "Noget gik galt – prøv igen om lidt.",
     brandName: "BrilleKlaus",
     brandTagline: "Optiker since XXXX",
     hostLine: "Host by Klaus Berthelsen",
@@ -380,6 +390,9 @@ export const getFooterContent = cache(async (): Promise<FooterContent> => {
     messagePlaceholder:
       f.messagePlaceholder ?? FALLBACK.footer.messagePlaceholder,
     submitLabel: f.submitLabel ?? FALLBACK.footer.submitLabel,
+    submittingLabel: f.submittingLabel ?? FALLBACK.footer.submittingLabel,
+    successMessage: f.successMessage ?? FALLBACK.footer.successMessage,
+    errorMessage: f.errorMessage ?? FALLBACK.footer.errorMessage,
     brandName: f.brandName ?? FALLBACK.footer.brandName,
     brandTagline: f.brandTagline ?? FALLBACK.footer.brandTagline,
     hostLine: f.hostLine ?? FALLBACK.footer.hostLine,
