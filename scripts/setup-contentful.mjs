@@ -20,6 +20,7 @@ import { createClient } from "contentful-management";
 const spaceId = process.env.CONTENTFUL_SPACE_ID;
 const managementToken = process.env.CONTENTFUL_MANAGEMENT_TOKEN;
 const environmentId = process.env.CONTENTFUL_ENVIRONMENT ?? "master";
+const overwriteExisting = process.env.OVERWRITE === "1";
 
 if (!spaceId || !managementToken) {
   console.error(
@@ -228,34 +229,34 @@ const seeds = {
     tagline: "optiker",
   },
   manifestoSection: {
-    leftLine1: "Ikke bare briller",
-    leftLine2: "En oplevelse",
-    rightLine1: "Ind i en ny verden af briller",
+    leftLine1: "Not just glasses",
+    leftLine2: "Experience",
+    rightLine1: "Into a new world of glasses",
     rightLine2: "Klaus Berthelsen",
   },
   aboutSection: {
-    heading: "Om Brilleklaus",
-    body: "Drevet af Klaus Berthelsen – hos os handler det om dit syn og din stil. Derfor er vi grundige, når vi sliber glas, og kræsne, når vi vælger stel til dig med kant og personlighed.",
+    heading: "About Brilleklaus",
+    body: "Host by Klaus Berthelsen — with us, it's all about your vision and your style. That's why we're thorough when we grind glass and discerning when we choose frames for you with edge and personality.",
   },
   processSection: {
-    heading: "Sådan arbejder vi",
-    body: "Hos os handler det om dit syn og din stil. Derfor er vi grundige, når vi sliber glas, og kræsne, når vi vælger stel til dig med kant og personlighed.",
+    heading: "About Brilleklaus",
+    body: "With us, it's all about your vision and your style. That's why we're thorough when we grind glass and discerning when we choose frames for you with edge and personality.",
   },
   footerSection: {
-    heading: "Kom i kontakt",
-    firstNamePlaceholder: "Fornavn",
-    lastNamePlaceholder: "Efternavn",
+    heading: "Get in touch",
+    firstNamePlaceholder: "First name",
+    lastNamePlaceholder: "Last name",
     emailPlaceholder: "Email",
-    messagePlaceholder: "Skriv din besked",
-    submitLabel: "Send besked",
-    submittingLabel: "Sender …",
+    messagePlaceholder: "Leave your message",
+    submitLabel: "Send your message",
+    submittingLabel: "Sending…",
     successMessage:
       "Tak for din besked – vi vender tilbage hurtigst muligt.",
     errorMessage: "Noget gik galt – prøv igen om lidt.",
     brandName: "BrilleKlaus",
-    brandTagline: "Optiker siden XXXX",
-    hostLine: "Drevet af Klaus Berthelsen",
-    email: "studio@brilleklaus.dk",
+    brandTagline: "Optiker since XXXX",
+    hostLine: "Host by Klaus Berthelsen",
+    email: "butik@nr-26.dk",
     phone: "+45 3315 0184",
   },
 };
@@ -270,34 +271,42 @@ const localize = (fields) =>
     Object.entries(fields).map(([k, v]) => [k, { [defaultLocale]: v }]),
   );
 
-let socialLinkEntryId = null;
-{
-  const existing = await client.entry.getMany({
-    query: { content_type: "socialLink", limit: 1 },
-  });
-  if (existing.items.length > 0) {
-    socialLinkEntryId = existing.items[0].sys.id;
-    console.log(`· socialLink entry already exists (${socialLinkEntryId})`);
-  } else {
-    const entry = await client.entry.create(
-      { contentTypeId: "socialLink" },
-      { fields: localize(socialLinkSeed) },
-    );
-    await client.entry.publish({ entryId: entry.sys.id }, entry);
-    socialLinkEntryId = entry.sys.id;
-    console.log(`✓ Seeded socialLink (${socialLinkEntryId})`);
-  }
-}
-
-for (const [contentTypeId, fields] of Object.entries(seeds)) {
+async function upsertEntry(contentTypeId, fields) {
   const existing = await client.entry.getMany({
     query: { content_type: contentTypeId, limit: 1 },
   });
-  if (existing.items.length > 0) {
-    console.log(`· ${contentTypeId} entry already exists — leaving untouched`);
-    continue;
+
+  if (existing.items.length === 0) {
+    const created = await client.entry.create(
+      { contentTypeId },
+      { fields },
+    );
+    await client.entry.publish({ entryId: created.sys.id }, created);
+    console.log(`✓ Seeded ${contentTypeId} (${created.sys.id})`);
+    return created.sys.id;
   }
 
+  const entry = existing.items[0];
+  if (!overwriteExisting) {
+    console.log(
+      `· ${contentTypeId} entry exists (${entry.sys.id}) — pass OVERWRITE=1 to update`,
+    );
+    return entry.sys.id;
+  }
+
+  entry.fields = fields;
+  const updated = await client.entry.update({ entryId: entry.sys.id }, entry);
+  await client.entry.publish({ entryId: updated.sys.id }, updated);
+  console.log(`✓ Overwrote ${contentTypeId} (${updated.sys.id})`);
+  return updated.sys.id;
+}
+
+const socialLinkEntryId = await upsertEntry(
+  "socialLink",
+  localize(socialLinkSeed),
+);
+
+for (const [contentTypeId, fields] of Object.entries(seeds)) {
   const entryFields = localize(fields);
   if (contentTypeId === "footerSection" && socialLinkEntryId) {
     entryFields.socialLinks = {
@@ -306,13 +315,7 @@ for (const [contentTypeId, fields] of Object.entries(seeds)) {
       ],
     };
   }
-
-  const entry = await client.entry.create(
-    { contentTypeId },
-    { fields: entryFields },
-  );
-  await client.entry.publish({ entryId: entry.sys.id }, entry);
-  console.log(`✓ Seeded ${contentTypeId}`);
+  await upsertEntry(contentTypeId, entryFields);
 }
 
 console.log("\nDone.");
